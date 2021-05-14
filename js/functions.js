@@ -348,29 +348,26 @@ function populateFields () {
 
     //  Autocomplete
     $('.field-autocomplete').autocomplete({
-      source: function(request, response) {
-        $.ajax({
-          url: 'http://api.fastjp.com:9000/api/StationLookup?station=' + request.term,
-          dataType: 'json',
-          success: function(data) {
-            var stations = data.stations;
-
-            response($.map(stations, function(item) {
-              return {
-                label: item.name,
-                value: item.name,
-                uic: item.uic
-              }
-            }));
-          }
-        });
-      },
-      select: function(event, ui) {
-        var uicNumber = ui.item.uic;
-
-        $(this).attr('data-uic', uicNumber);
-      },
-      minLength: 3
+        source: function (request, response) {
+            var term = request.term;
+            if (term.length > 2) {
+                $.ajax({
+                    url: "https://trainsplit.com/default.aspx/GetStations",
+                    data: "{ 'pre':'" + request.term + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        response($.map(data.d, function (item) {
+                            return { value: item }
+                        }))
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(textStatus);
+                    }
+                });
+            }
+       }
     });
 
     $('.form-toggle-trigger').on('change', function () {
